@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{\textbf{Mini Project 2026}\\
+Modelling a 3D Printer}
+
+\author{
+Stefano Natalucci \and
+Giorgio Ramundo
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Physical Modelling}
+\subsection{Kinematics}
+
+The CoreXY mechanism couples the motion of both motors to the Cartesian
+motion of the print head. The linear displacement
+of each belt is related to the corresponding motor rotation through the
+motor pulley radius $r_m$.
+
+Using the chosen sign convention, the belt displacements satisfy
+\begin{equation}
+r_m\theta_l = x+y,
+\end{equation}
+\begin{equation}
+r_m\theta_r = x-y.
+\end{equation}
+
+Solving for the Cartesian coordinates gives
+\begin{equation}
+x = \frac{r_m}{2}\left(\theta_l+\theta_r\right),
+\end{equation}
+\begin{equation}
+y = \frac{r_m}{2}\left(\theta_l-\theta_r\right).
+\end{equation}
+
+Differentiating with respect to time yields the print-head velocities:
+\begin{equation}
+\dot{x} = \frac{r_m}{2}
+\left(\dot{\theta}_l+\dot{\theta}_r\right),
+\end{equation}
+\begin{equation}
+\dot{y} = \frac{r_m}{2}
+\left(\dot{\theta}_l-\dot{\theta}_r\right).
+\end{equation}
+
+\end{document}
