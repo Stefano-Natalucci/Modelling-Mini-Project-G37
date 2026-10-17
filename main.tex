@@ -220,4 +220,134 @@ c_x=\mu_{l,x}+4\mu_r,
 \qquad
 c_y=\mu_{l,y}+2\mu_r.
 \end{equation}
+\subsection{Decoupling of the $x$ and $y$ Dynamics}
+
+The coupled motor dynamics can be decoupled by exploiting the structure of
+the CoreXY kinematics. From Section 1.1,
+\[
+\dot{x}=\frac{r_m}{2}\left(\omega_l+\omega_r\right),
+\qquad
+\dot{y}=\frac{r_m}{2}\left(\omega_l-\omega_r\right).
+\]
+
+Therefore,
+\[
+\omega_l+\omega_r=\frac{2\dot{x}}{r_m},
+\qquad
+\omega_l-\omega_r=\frac{2\dot{y}}{r_m}.
+\]
+
+Starting from the mechanical equations derived in Section 1.2, summing the
+left and right motor equations gives
+\begin{equation}
+J_{\mathrm{eq}}\left(\dot{\omega}_l+\dot{\omega}_r\right)
+=
+K_m(i_l+i_r)
+-r_m^2c_x(\omega_l+\omega_r),
+\end{equation}
+while subtracting them gives
+\begin{equation}
+J_{\mathrm{eq}}\left(\dot{\omega}_l-\dot{\omega}_r\right)
+=
+K_m(i_l-i_r)
+-r_m^2c_y(\omega_l-\omega_r).
+\end{equation}
+
+Using the kinematic relations above, these equations become
+\begin{equation}
+M_{\mathrm{eq}}\ddot{x}
+=
+-2c_x\dot{x}
++
+\frac{K_m}{r_m}(i_l+i_r),
+\end{equation}
+and
+\begin{equation}
+M_{\mathrm{eq}}\ddot{y}
+=
+-2c_y\dot{y}
++
+\frac{K_m}{r_m}(i_l-i_r),
+\end{equation}
+where
+\begin{equation}
+M_{\mathrm{eq}}
+=
+m+\frac{2J_m}{r_m^2}.
+\end{equation}
+
+The same sum-and-difference transformation can be applied to the electrical
+equations. Summing them gives
+\begin{equation}
+L_m(\dot{i}_l+\dot{i}_r)
+=
+(u_l+u_r)
+-R_m(i_l+i_r)
+-\frac{2K_m}{r_m}\dot{x},
+\end{equation}
+while subtracting them gives
+\begin{equation}
+L_m(\dot{i}_l-\dot{i}_r)
+=
+(u_l-u_r)
+-R_m(i_l-i_r)
+-\frac{2K_m}{r_m}\dot{y}.
+\end{equation}
+
+This naturally suggests introducing the transformed variables
+\begin{equation}
+i_x=i_l+i_r,
+\qquad
+i_y=i_l-i_r,
+\end{equation}
+and
+\begin{equation}
+u_x=u_l+u_r,
+\qquad
+u_y=u_l-u_r.
+\end{equation}
+
+With these definitions, the original coupled system separates into two
+independent subsystems.
+
+For the $x$-direction,
+\begin{equation}
+\begin{aligned}
+\dot{x} &= v_x,\\
+\dot{v}_x &=
+-\frac{2c_x}{M_{\mathrm{eq}}}v_x
++
+\frac{K_m}{r_mM_{\mathrm{eq}}}i_x,\\
+\dot{i}_x &=
+-\frac{2K_m}{L_mr_m}v_x
+-\frac{R_m}{L_m}i_x
++\frac{1}{L_m}u_x,
+\end{aligned}
+\end{equation}
+
+
+For the $y$-direction,
+\begin{equation}
+\begin{aligned}
+\dot{y} &= v_y,\\
+\dot{v}_y &=
+-\frac{2c_y}{M_{\mathrm{eq}}}v_y
++
+\frac{K_m}{r_mM_{\mathrm{eq}}}i_y,\\
+\dot{i}_y &=
+-\frac{2K_m}{L_mr_m}v_y
+-\frac{R_m}{L_m}i_y
++\frac{1}{L_m}u_y,
+\end{aligned}
+\end{equation}
+where,
+\begin{equation}
+c_x=\mu_{l,x}+4\mu_r,
+\qquad
+c_y=\mu_{l,y}+2\mu_r.
+\end{equation}
+
+Hence, the sum of the motor variables governs the $x$-motion, while their
+difference governs the $y$-motion, resulting in two fully decoupled
+third-order systems.
 \end{document}
