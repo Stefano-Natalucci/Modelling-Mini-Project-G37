@@ -57,5 +57,167 @@ Differentiating with respect to time yields the print-head velocities:
 \dot{y} = \frac{r_m}{2}
 \left(\dot{\theta}_l-\dot{\theta}_r\right).
 \end{equation}
+\subsection{Dynamics}
+\paragraph{Electrical dynamics.}
+Since the left and right motor circuits are identical, they can be
+described simultaneously by introducing the index $j\in\{l,r\}$.
+Applying Kirchhoff's voltage law gives
+\begin{equation}
+u_j = L_m\dot{i}_j + R_m i_j + u_{M,j},
+\qquad j\in\{l,r\},
+\end{equation}
+where $u_{M,j}$ denotes the voltage across the electromechanical
+transducer.\\
+Rearranging,
+\begin{equation}
+\dot{i}_j=
+\frac{1}{L_m}
+\left(
+u_j-R_m i_j-u_{M,j}
+\right),
+\qquad j\in\{l,r\}.
+\end{equation}
+\paragraph{Electromechanical transducer.}
+The DC motor couples the electrical and rotational mechanical domains
+through the motor constant $K_m$. The voltage across the transducer is
+proportional to the angular velocity, while the generated motor torque is
+proportional to the armature current:
+\begin{equation}
+u_{M,j}=K_m\dot{\theta}_j,
+\qquad j\in\{l,r\},
+\end{equation}
+\begin{equation}
+\tau_j=K_m i_j,
+\qquad j\in\{l,r\}.
+\end{equation}
+\paragraph{Mechanical dynamics.}
+The mechanical model includes the forces transmitted by the two belts,
+the friction of the linear bearings, and the rolling friction generated
+by the rotational bearings.
 
+The linear bearings are modelled through viscous friction. Since the
+print head is constrained by two linear guides along each Cartesian
+direction, the friction contribution is doubled. Therefore,
+\begin{equation}
+F_{l,x}=2\mu_{l,x}\dot{x},
+\qquad
+F_{l,y}=2\mu_{l,y}\dot{y}.
+\end{equation}
+The rolling friction requires a more detailed treatment, since not all rotational bearings experience the same relative belt velocity. For each belt, the bearings fixed to the frame experience the velocity of the corresponding belt,
+\[
+r_m\dot{\theta}_j, \qquad j\in\{l,r\}.
+\]
+
+The remaining bearings move together with the gantry in the $y$-direction. Their relative velocities are therefore
+\begin{equation}
+v_{r,l}^{m}=r_m\dot{\theta}_l-\dot{y},
+\end{equation}
+and
+\begin{equation}
+v_{r,r}^{m}=r_m\dot{\theta}_r+\dot{y}.
+\end{equation}
+
+Using the kinematic relations derived in Section 1.1,
+\[
+r_m\dot{\theta}_l=\dot{x}+\dot{y},
+\qquad
+r_m\dot{\theta}_r=\dot{x}-\dot{y},
+\]
+the moving bearings experience a relative velocity equal to $\dot{x}$. Therefore, they contribute only to the friction force along the $x$-direction.
+
+Along the $x$-direction, all rolling bearings contribute, giving
+\begin{equation}
+\begin{aligned}
+F_{r,x} ={}&
+-2\mu_r r_m\dot{\theta}_l
+-2\mu_r\left(r_m\dot{\theta}_l-\dot{y}\right)\\
+&-2\mu_r r_m\dot{\theta}_r
+-2\mu_r\left(r_m\dot{\theta}_r+\dot{y}\right).
+\end{aligned}
+\end{equation}
+
+Along the $y$-direction, only the fixed bearings contribute. Since the left and right belts experience the $y$-motion with opposite signs, the rolling-friction contribution is
+\begin{equation}
+F_{r,y}
+=
+-2\mu_r r_m\dot{\theta}_l
++2\mu_r r_m\dot{\theta}_r.
+\end{equation}
+
+Applying Newton's second law to the print head gives
+\begin{equation}
+m\ddot{x}
+=
+F_l+F_r
+-2\mu_{l,x}\dot{x}
++F_{r,x},
+\end{equation}
+
+\begin{equation}
+m\ddot{y}
+=
+F_l-F_r
+-2\mu_{l,y}\dot{y}
++F_{r,y},
+\end{equation}
+where the forces transmitted by the belts are related to the motor torques through the rotor dynamics,
+\[
+J_m\ddot{\theta}_j=\tau_j-r_mF_j,
+\qquad j\in\{l,r\},
+\]
+so that
+\[
+F_j=
+\frac{\tau_j-J_m\ddot{\theta}_j}{r_m},
+\qquad j\in\{l,r\}.
+\]
+
+
+\paragraph{Complete system dynamics.}
+By substituting the transducer relations into the motor equations,
+using the belt-force relation, and finally introducing the kinematic relations derived in Section 1.1,
+the complete set of differential equations describing the coupled dynamics of the two motors and the print head is obtained as
+\begin{equation}
+\begin{aligned}
+\dot{\theta}_l &= \omega_l,\\
+\dot{\theta}_r &= \omega_r,\\
+\dot{\omega}_l &=
+\frac{K_m}{J_{\mathrm{eq}}}i_l
+-
+\frac{r_m^2}{2J_{\mathrm{eq}}}
+\left[
+(c_x+c_y)\omega_l
++
+(c_x-c_y)\omega_r
+\right],\\
+\dot{\omega}_r &=
+\frac{K_m}{J_{\mathrm{eq}}}i_r
+-
+\frac{r_m^2}{2J_{\mathrm{eq}}}
+\left[
+(c_x-c_y)\omega_l
++
+(c_x+c_y)\omega_r
+\right],\\
+\dot{i}_l &=
+\frac{1}{L_m}
+\left(
+u_l-R_m i_l-K_m\omega_l
+\right),\\
+\dot{i}_r &=
+\frac{1}{L_m}
+\left(
+u_r-R_m i_r-K_m\omega_r
+\right).
+\end{aligned}
+\end{equation}
+
+where, for compactness,
+\begin{equation}
+J_{\mathrm{eq}} = J_m+\frac{mr_m^2}{2},
+\qquad
+c_x=\mu_{l,x}+4\mu_r,
+\qquad
+c_y=\mu_{l,y}+2\mu_r.
+\end{equation}
 \end{document}
