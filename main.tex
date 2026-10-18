@@ -171,7 +171,84 @@ F_j=
 \frac{\tau_j-J_m\ddot{\theta}_j}{r_m},
 \qquad j\in\{l,r\}.
 \]
+\paragraph{Alternative Euler--Lagrange derivation.}
+The mechanical dynamics can alternatively be derived using the
+Euler--Lagrange equations with $x$ and $y$ as generalized coordinates.
 
+Using the kinematic relations
+\[
+\theta_l=\frac{x+y}{r_m},
+\qquad
+\theta_r=\frac{x-y}{r_m},
+\]
+the total kinetic energy is
+\begin{equation}
+T=
+\frac{1}{2}m\left(\dot{x}^2+\dot{y}^2\right)
++
+\frac{1}{2}J_m\dot{\theta}_l^2
++
+\frac{1}{2}J_m\dot{\theta}_r^2.
+\end{equation}
+
+The viscous losses are described through the Rayleigh dissipation function
+\begin{equation}
+\mathcal{D}
+=
+\mu_{l,x}\dot{x}^2
++
+\mu_{l,y}\dot{y}^2
++
+4\mu_r\dot{x}^2
++
+2\mu_r\dot{y}^2.
+\end{equation}
+
+Applying
+\begin{equation}
+\frac{d}{dt}
+\left(
+\frac{\partial L}{\partial \dot{q}_i}
+\right)
+-
+\frac{\partial L}{\partial q_i}
++
+\frac{\partial \mathcal{D}}{\partial \dot{q}_i}
+=
+Q_i,
+\end{equation}
+with $L=T$ and
+\[
+Q_x=\frac{\tau_l+\tau_r}{r_m},
+\qquad
+Q_y=\frac{\tau_l-\tau_r}{r_m},
+\]
+yields
+\begin{equation}
+\left(
+m+\frac{2J_m}{r_m^2}
+\right)\ddot{x}
++
+\left(
+2\mu_{l,x}+8\mu_r
+\right)\dot{x}
+=
+\frac{\tau_l+\tau_r}{r_m},
+\end{equation}
+
+\begin{equation}
+\left(
+m+\frac{2J_m}{r_m^2}
+\right)\ddot{y}
++
+\left(
+2\mu_{l,y}+4\mu_r
+\right)\dot{y}
+=
+\frac{\tau_l-\tau_r}{r_m}.
+\end{equation}
+
+These equations coincide with the mechanical model obtained above through the force-balance approach.
 
 \paragraph{Complete system dynamics.}
 By substituting the transducer relations into the motor equations,
