@@ -633,5 +633,117 @@ The results show that the same decoupled model and inverse-dynamics
 procedure can generate different smooth closed trajectories by modifying
 only the prescribed Cartesian path.
 
+\subsection{Nozzle Model}
+The nozzle heating system is modelled by coupling the electrical circuit
+to a thermal model. The input of the system is the controllable
+voltage $u_n$.
 
+\medskip
+\noindent\textbf{Electrical dynamics}
+
+Let $V_c$ denote the voltage across the resistor-capacitor branch and
+$i_L$ the current through the inductor. The resulting relations are
+\[
+i_C=C_n\dot V_c,
+\qquad
+V_L=L_n\dot i_L.
+\]
+
+Applying Kirchhoff's voltage law gives
+\[
+u_n=V_c+V_L,
+\]
+and therefore
+\[
+\dot i_L
+=
+-\frac{V_c}{L_n}
++
+\frac{u_n}{L_n}.
+\]
+
+Using Kirchhoff's current law,
+\[
+i_L=i_R+i_C,
+\]
+with
+\[
+i_R=\frac{V_c}{R_n},
+\]
+the capacitor dynamics become
+\[
+\dot V_c
+=
+\frac{i_L}{C_n}
+-
+\frac{V_c}{R_nC_n}.
+\]
+
+\medskip
+\noindent\textbf{Thermal dynamics}
+
+The electrical power dissipated by the resistor is converted into heat by the Joule Effect:
+\[
+P_n
+=
+R_ni_R^2
+=
+\frac{V_c^2}{R_n}.
+\]
+
+The nozzle is modelled as a thermal capacity $C_{t,n}$ exchanging
+heat with the environment through the thermal resistance $R_{t,n}$. The
+thermal balance is therefore
+\[
+C_{t,n}\dot T_n
+=
+\frac{V_c^2}{R_n}
+-
+\frac{T_n-T_e}{R_{t,n}},
+\]
+which gives
+\[
+\dot T_n
+=
+\frac{V_c^2}{R_nC_{t,n}}
+-
+\frac{T_n-T_e}{C_{t,n}R_{t,n}}.
+\]
+
+\medskip
+\noindent\textbf{State-space representation}
+
+Defining the nozzle state as
+\[
+x_n=
+\begin{bmatrix}
+T_n & V_c & i_L
+\end{bmatrix}^{\top},
+\]
+the system can be written in the required form
+\[
+\dot{x}_n=f_n(x_n,u_n),
+\]
+with governing differential equations
+\[
+\dot T_n
+=
+\frac{V_c^2}{R_nC_{t,n}}
+-
+\frac{T_n-T_e}{C_{t,n}R_{t,n}},
+\]
+\[
+\dot V_c
+=
+\frac{i_L}{C_n}
+-
+\frac{V_c}{R_nC_n},
+\]
+\[
+\dot i_L
+=
+-\frac{V_c}{L_n}
++
+\frac{u_n}{L_n}.
+\]
 \end{document}
