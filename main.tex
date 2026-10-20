@@ -746,4 +746,234 @@ with governing differential equations
 +
 \frac{u_n}{L_n}.
 \]
+\subsection{Filament Cooling}
+
+The printed filament is modelled as a 1-D distributed thermal system with a square
+cross section of side length $w$. The spatial coordinate $x$ is defined along the deposited
+filament. During printing, the length of the computational domain increases according to
+
+\[
+L(t)=v_{\mathrm{print}}t,
+\qquad 0\leq t\leq t_{\mathrm{print}},
+\]
+
+whereas after the printing process is completed,
+
+\[
+L(t)=L_{\mathrm{tot}},
+\qquad t\geq t_{\mathrm{print}}.
+\]
+
+The temperature along the filament is denoted by $T(x,t)$.
+
+\smallskip
+\noindent\textbf{Heat equation}
+
+The thermal energy balance per unit volume is written as
+
+\[
+\rho c_p\frac{\partial T}{\partial t}
+=
+-\nabla\cdot\phi + f,
+\]
+
+where $\rho$ is the filament density, $c_p$ its specific heat capacity,
+$\phi$ is the conductive heat flux, and $f$ represents distributed heat exchange with the
+surroundings.
+
+Using Fourier's law,
+
+\[
+\phi=-k_{\mathrm{filament}}\nabla T,
+\]
+
+the governing equation becomes
+
+\[
+\rho c_p\frac{\partial T}{\partial t}
+=
+k_{\mathrm{filament}}\nabla^2T+f.
+\]
+
+Since the model is one-dimensional along the filament coordinate,
+
+\[
+\frac{\partial T}{\partial t}
+=
+\frac{k_{\mathrm{filament}}}{\rho c_p}
+\frac{\partial^2T}{\partial x^2}
++
+\frac{f}{\rho c_p}.
+\]
+
+\medskip
+\noindent\textbf{Heat exchange with air and heated plate}
+
+The filament has a square cross section,
+
+\[
+A=w^2.
+\]
+
+Three sides are exposed to the surrounding air at temperature $T_e$, while the lower side is in
+contact with the heated plate at temperature $T_b$.
+
+The distributed heat exchange per unit length is therefore modelled as
+
+\[
+q'(x,t)
+=
+3wh_{\mathrm{air}}\left(T_e-T(x,t)\right)
++
+wh_{\mathrm{plate}}\left(T_b-T(x,t)\right),
+\]
+
+where $h_{\mathrm{air}}$ and $h_{\mathrm{plate}}$ are effective heat-transfer coefficients.
+
+Dividing by the cross-sectional area gives the corresponding volumetric source term,
+
+\[
+f(x,t)
+=
+\frac{1}{A}
+\left[
+3wh_{\mathrm{air}}\left(T_e-T(x,t)\right)
++
+wh_{\mathrm{plate}}\left(T_b-T(x,t)\right)
+\right].
+\]
+
+Hence, the final PDE is
+
+\[
+\frac{\partial T}{\partial t}
+=
+\frac{k_{\mathrm{filament}}}{\rho c_p}
+\frac{\partial^2T}{\partial x^2}
++
+\frac{
+3wh_{\mathrm{air}}(T_e-T)
++
+wh_{\mathrm{plate}}(T_b-T)
+}{
+\rho c_p w^2
+}
+\]
+
+\medskip
+\noindent\textbf{Spatial discretisation}
+
+The filament is divided into equally spaced sections of length $\Delta x$. For an interior node
+$i$, the second spatial derivative is approximated using a central finite difference,
+
+\[
+\frac{\partial^2T}{\partial x^2}
+\approx
+\frac{T_{i+1}-2T_i+T_{i-1}}{\Delta x^2}.
+\]
+
+Therefore, the temperature dynamics at node $i$ are
+
+\[
+\frac{dT_i}{dt}
+=
+\frac{k_{\mathrm{filament}}}{\rho c_p}
+\frac{T_{i+1}-2T_i+T_{i-1}}{\Delta x^2}
++
+\frac{
+3wh_{\mathrm{air}}(T_e-T_i)
++
+wh_{\mathrm{plate}}(T_b-T_i)
+}{
+\rho c_p w^2
+}.
+\]
+
+\medskip
+\noindent\textbf{Boundary conditions during printing}
+
+During deposition, the computational domain grows in time. The temperature at the active
+printing front is assumed equal to the nozzle temperature,
+
+\[
+T(L(t),t)=T_n.
+\]
+
+At the initial end of the deposited filament, a zero heat-flux condition is imposed,
+
+\[
+\frac{\partial T}{\partial x}(0,t)=0.
+\]
+
+As the nozzle moves, new spatial nodes are progressively activated and initialised at temperature
+$T_n$.
+
+\medskip
+\noindent\textbf{Boundary conditions after printing}
+
+Once the complete closed path has been deposited, the computational domain has fixed length
+$L_{\mathrm{tot}}$. Since the physical path is closed, periodic boundary conditions are applied,
+
+\[
+T(0,t)=T(L_{\mathrm{tot}},t),
+\]
+
+and
+
+\[
+\frac{\partial T}{\partial x}(0,t)
+=
+\frac{\partial T}{\partial x}(L_{\mathrm{tot}},t).
+\]
+
+The simulation is continued until the temperature becomes nearly uniform. This condition is
+defined as
+
+\[
+\max_i T_i-\min_i T_i\leq \varepsilon,
+\]
+
+where $\varepsilon$ is a prescribed temperature tolerance.
+
+\medskip
+\noindent\textbf{MATLAB Implementation and Simulation}
+
+The discretised thermal model was implemented in MATLAB using an explicit Euler scheme.
+During printing, the computational domain grows as new filament is deposited. New nodes are
+activated according to the printing speed and are initialised at the nozzle temperature \(T_n\).
+The zero heat-flux boundary condition is applied at the initial end of the filament.
+
+Once the complete path has been deposited, the domain is kept fixed and periodic boundary
+conditions are applied to represent the closed printed path. The simulation is then continued
+until
+
+\[
+\max_i T_i-\min_i T_i\leq\varepsilon.
+\]
+
+With the selected values, the complete filament is deposited in
+
+\[
+t_{\mathrm{print}}
+=
+\frac{L_{\mathrm{tot}}}{v_{\mathrm{print}}}
+=
+5\,\mathrm{s}.
+\]
+
+The temperature profiles at the end of printing and after cooling are shown in
+Figure~\ref{fig:filament_cooling}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{FilamentCooling.png}
+    \caption{Temperature distribution along the filament at the end of printing and after cooling.}
+    \label{fig:filament_cooling}
+\end{figure}
+
+At the end of printing, the temperature is not uniform because the first deposited sections
+have already started cooling, while the most recent sections are still close to the nozzle
+temperature. After approximately \(21.3\,\mathrm{s}\) from the beginning of the simulation,
+the temperature difference along the filament becomes smaller than the selected tolerance $(tol. = 5[K])$.
+Consequently, the filament has final nearly uniform temperature.
 \end{document}
