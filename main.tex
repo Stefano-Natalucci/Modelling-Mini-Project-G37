@@ -976,4 +976,118 @@ have already started cooling, while the most recent sections are still close to 
 temperature. After approximately \(21.3\,\mathrm{s}\) from the beginning of the simulation,
 the temperature difference along the filament becomes smaller than the selected tolerance $(tol. = 5[K])$.
 Consequently, the filament has final nearly uniform temperature.
+\section{Finite State Machines}
+
+\subsection{Filament Replacement}
+
+The filament-replacement procedure is triggered either when a new colour is required,
+denoted by $C$, or when the current filament spool is finished, denoted by $F$.
+In both cases, printing is interrupted and the current print-head position is stored.
+The print head is then moved to the wipe-tower location
+\[
+(x_p,y_p)=(0,0),
+\]
+where the excess filament is removed. The nozzle heater is subsequently switched off,
+the new filament is loaded, and the nozzle is heated again. Before resuming the print,
+the print head returns to the previously stored position.
+
+The controller is represented as a Moore-type finite-state machine. Its state set is
+\[
+Q =
+\left\{
+\begin{array}{l}
+\text{Printing},\ \text{Stop \& Save},\ \text{Move to wipe tower},\ \text{Wiping},\\
+\text{Heat off},\ \text{Load filament},\ \text{Heat on},\ \text{Moving back}
+\end{array}
+\right\}.
+\]
+with initial-state set
+\[
+Q_0=\{\text{Printing}\}.
+\]
+
+The input alphabet consists of the discrete events triggering state transitions,
+\[
+\Sigma =
+\left\{
+\begin{array}{l}
+C,\ F,\ \text{position saved},\ \text{wipe location reached},\\
+\text{excess filament removed},\ \text{temperature low},\\
+\text{filament loaded},\ \text{temperature high},\\
+\text{saved position reached}
+\end{array}
+\right\}.
+\]
+
+The corresponding output alphabet, representing the action performed in each state, is
+\[
+\Gamma =
+\left\{
+\begin{array}{l}
+\text{Print},\ \text{Stop and save position},\ \text{Move to }(0,0),\\
+\text{Print at wipe tower},\ \text{Heater OFF},\ \text{Load filament},\\
+\text{Heater ON},\ \text{Return to saved position}
+\end{array}
+\right\}.
+\]
+
+The resulting finite-state machine, including the state transitions and the action associated
+with each state, is shown in Figure~\ref{fig:filament_fsm}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{FST.png}
+    \caption{Finite-state machine for the filament replacement procedure.}
+    \label{fig:filament_fsm}
+\end{figure}
+
+\subsection{Parked Detection}
+
+The print head is brought to the origin by commanding horizontal and vertical motions until
+the corresponding boundaries are detected. A boundary is identified when a motion command
+is applied while the measured motor angular velocity is zero.
+
+The input alphabet is
+\[
+\Sigma=\{H_{+},H_{0},V_{+},V_{0}\},
+\]
+where $H$ and $V$ denote horizontal and vertical motion commands, respectively, while
+$+$ and $0$ indicate positive and zero angular velocity.
+
+The automaton is defined by the state set
+\[
+Q=
+\left\{
+\begin{array}{l}
+\text{No boundary reached},\ 
+\text{Horizontal boundary reached},\\
+\text{Vertical boundary reached},\ 
+\text{Head correctly parked}
+\end{array}
+\right\}.
+\]
+
+The initial state is
+\[
+Q_0=\{\text{No boundary reached}\},
+\]
+while the accepting-state set is
+\[
+F=\{\text{Head correctly parked}\}.
+\]
+
+As long as the measured angular velocity remains positive, no new boundary is detected.
+Therefore, $H_{+}$ and $V_{+}$ leave the automaton in the current detection state.
+A zero angular velocity instead indicates that the corresponding boundary has been reached.
+Once one boundary has been detected, only the remaining motion direction needs to be checked.
+The head is considered correctly parked after both boundaries have been detected.
+
+The resulting automaton is shown in Figure~\ref{fig:parked_automaton}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Automata.png}
+    \caption{Automaton for the detection of the correctly parked print head.}
+    \label{fig:parked_automaton}
+\end{figure}
 \end{document}
