@@ -1090,4 +1090,301 @@ The resulting automaton is shown in Figure~\ref{fig:parked_automaton}.
     \caption{Automaton for the detection of the correctly parked print head.}
     \label{fig:parked_automaton}
 \end{figure}
+\section{Hybrid System}
+
+\subsection{Filament Replacement}
+
+Firstly, we collect the continuous dynamics derived in Section~1 into a single state vector,
+
+\[
+x =
+\begin{bmatrix}
+x & v_x & i_x &
+y & v_y & i_y &
+T_n & V_c & i_L
+\end{bmatrix}^{\top},
+\]
+
+with continuous input vector
+
+\[
+u =
+\begin{bmatrix}
+u_x & u_y & u_n
+\end{bmatrix}^{\top}.
+\]
+
+The continuous dynamics of the hybrid model are defined as
+
+\[
+\dot{x}=f(q,x,u),
+\]
+
+where \(q\in Q\) denotes the active discrete mode. The set of discrete modes is inherited from the filament-replacement FSM introduced in Section~2.1:
+
+\[
+Q=
+\{
+q_0,q_1,q_2,q_3,q_4,q_5,q_6,q_7
+\},
+\]
+
+with
+
+\[
+\begin{aligned}
+q_0 &: \text{Printing},\\
+q_1 &: \text{Stop and save current position},\\
+q_2 &: \text{Move to wipe tower},\\
+q_3 &: \text{Wiping},\\
+q_4 &: \text{Nozzle heat off},\\
+q_5 &: \text{Load new filament},\\
+q_6 &: \text{Nozzle heat on},\\
+q_7 &: \text{Moving back to the saved position}.
+\end{aligned}
+\]
+
+The active mode determines the continuous inputs and whether the nozzle deposits material.
+The binary deposition signal introduced in Section~1.4 is defined as
+
+\[
+p=p(q)\in\{0,1\},
+\]
+
+with \(p=1\) when material is deposited and \(p=0\) otherwise.
+
+The continuous inputs and deposition signal associated with each mode are defined as
+
+\[
+\begin{array}{c|c|c}
+\text{Mode} & u & p \\ \hline
+
+q_0:\ \text{Printing}
+&
+\begin{bmatrix}
+u_x^{\mathrm{print}} &
+u_y^{\mathrm{print}} &
+u_n
+\end{bmatrix}^{\top}
+& 1
+\\[3mm]
+
+q_1:\ \text{Stop \& Save}
+&
+\begin{bmatrix}
+0 & 0 & u_n
+\end{bmatrix}^{\top}
+& 0
+\\[3mm]
+
+q_2:\ \text{Move to wipe tower}
+&
+\begin{bmatrix}
+u_x^{\mathrm{parking}} &
+u_y^{\mathrm{parking}} &
+u_n
+\end{bmatrix}^{\top}
+& 0
+\\[3mm]
+
+q_3:\ \text{Wiping}
+&
+\begin{bmatrix}
+0 & 0 & u_n
+\end{bmatrix}^{\top}
+& 1
+\\[3mm]
+
+q_4:\ \text{Nozzle heat off}
+&
+\begin{bmatrix}
+0 & 0 & 0
+\end{bmatrix}^{\top}
+& 0
+\\[3mm]
+
+q_5:\ \text{Load new filament}
+&
+\begin{bmatrix}
+0 & 0 & 0
+\end{bmatrix}^{\top}
+& 0
+\\[3mm]
+
+q_6:\ \text{Nozzle heat on}
+&
+\begin{bmatrix}
+0 & 0 & u_n
+\end{bmatrix}^{\top}
+& 0
+\\[3mm]
+
+q_7:\ \text{Moving back}
+&
+\begin{bmatrix}
+u_x^{\mathrm{return}} &
+u_y^{\mathrm{return}} &
+u_n
+\end{bmatrix}^{\top}
+& 0
+\end{array}
+\]
+
+where \(u_x^{\mathrm{print}}\) and \(u_y^{\mathrm{print}}\) generate the printing trajectory,
+\(u_x^{\mathrm{parking}}\) and \(u_y^{\mathrm{parking}}\) move the nozzle towards the wipe-tower position
+\((0,0)\), and \(u_x^{\mathrm{return}}\) and \(u_y^{\mathrm{return}}\) return it to the previously stored position.
+The input \(u_n\) denotes the nozzle-heater voltage when the heater is active.
+
+For the modes in which the print head remains stationary, we assume that the previous motion has already been completed. Therefore, when entering these modes,
+
+\[
+v_x=v_y=i_x=i_y=0,
+\]
+
+and
+
+\[
+u_x=u_y=0.
+\]
+
+Under this assumption, the mechanical system remains at rest and the print-head position does not change.
+
+\medskip
+\noindent\textbf{Memory and logical variables}
+
+To store the position where printing is interrupted, two memory variables \(x_s\) and \(y_s\)
+are introduced. During continuous evolution,
+
+\[
+\dot{x}_s=0,
+\qquad
+\dot{y}_s=0.
+\]
+
+The extended state is therefore
+
+\[
+\xi =
+\begin{bmatrix}
+x^{\top} & x_s & y_s
+\end{bmatrix}^{\top}.
+\]
+
+Two binary logical variables are also used,
+
+\[
+s,\ell\in\{0,1\},
+\]
+
+where \(s=1\) means that the printing position has been saved, while
+\(\ell=1\) means that filament is loaded.\\
+The starting conditions are
+
+\[
+s(0)=0,
+\qquad
+\ell(0)=1.
+\]
+
+
+\medskip
+\noindent\textbf{Invariants}
+
+The invariants associated with the discrete modes are defined as
+
+\[
+\begin{array}{r@{\;}c@{\;}l@{\qquad\qquad}r@{\;}c@{\;}l}
+\operatorname{Inv}(q_0) &=& \mathcal{X}, &
+\operatorname{Inv}(q_4) &=& \{T_n \geq T_{\mathrm{low}}\},\\
+\operatorname{Inv}(q_1) &=& \mathcal{X}, &
+\operatorname{Inv}(q_5) &=& \{\ell = 0\},\\
+\operatorname{Inv}(q_2) &=& \{(x,y)\neq(0,0)\}, &
+\operatorname{Inv}(q_6) &=& \{T_n \leq T_{\mathrm{high}}\},\\
+\operatorname{Inv}(q_3) &=& \{\ell = 1\}, &
+\operatorname{Inv}(q_7) &=& \{(x,y)\neq(x_s,y_s)\}.
+\end{array}
+\]
+
+In modes \(q_3\) and \(q_5\), the invariant expresses the logical condition that holds until
+the corresponding filament status changes. Mode \(q_1\) is considered instantaneous: since \(s=1\) when the
+mode is entered, the transition to \(q_2\) can occur immediately.
+
+\medskip
+\noindent\textbf{Guards and reset maps}
+
+The transitions between modes are defined by the following guards and reset maps:
+
+\[
+\begin{array}{c|c|c}
+\text{Transition} & \text{Guard} & \text{Reset map} \\ \hline
+
+q_0\rightarrow q_1
+&
+C\lor F
+&
+x_s^+=x^-,
+\quad
+y_s^+=y^-,
+\quad
+s^+=1
+\\[2mm]
+
+q_1\rightarrow q_2
+&
+s=1
+&
+\text{identity}
+\\[2mm]
+
+q_2\rightarrow q_3
+&
+x=0,\quad y=0
+&
+\text{identity}
+\\[2mm]
+
+q_3\rightarrow q_4
+&
+\ell=0
+&
+\text{identity}
+\\[2mm]
+
+q_4\rightarrow q_5
+&
+T_n\leq T_{\mathrm{low}}
+&
+\text{identity}
+\\[2mm]
+
+q_5\rightarrow q_6
+&
+\ell=1
+&
+\text{identity}
+\\[2mm]
+
+q_6\rightarrow q_7
+&
+T_n\geq T_{\mathrm{high}}
+&
+\text{identity}
+\\[2mm]
+
+q_7\rightarrow q_0
+&
+x=x_s,\quad y=y_s
+&
+s^+=0
+\end{array}
+\]
+
+All variables not changed by a reset keep their previous value.
+The resulting hybrid automaton is shown in Figure~\ref{fig:hybrid_filament}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hybrid System.png}
+    \caption{Hybrid automaton describing the filament replacement procedure. The nodes represent the discrete modes, while the edges are labelled by the corresponding guard and reset maps introduced above.}
+    \label{fig:hybrid_filament}
+\end{figure}
 \end{document}
