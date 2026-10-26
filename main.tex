@@ -1387,4 +1387,23 @@ The resulting hybrid automaton is shown in Figure~\ref{fig:hybrid_filament}.
     \caption{Hybrid automaton describing the filament replacement procedure. The nodes represent the discrete modes, while the edges are labelled by the corresponding guard and reset maps introduced above.}
     \label{fig:hybrid_filament}
 \end{figure}
+\medskip
+\noindent\textbf{MATLAB Implementation and Simulation}
+
+The hybrid model was implemented in MATLAB to simulate the filament replacement procedure.
+
+The simulation follows the same sequence described above: printing, running out of filament,
+saving the current position, moving to the wipe tower, wiping, cooling the nozzle, loading new filament, heating the nozzle, and returning to the saved position. Printing then resumes from the same point. The duration of the wiping and filament-loading operations is not simulated. In the MATLAB script, each operation is represented by an immediate update of \(\ell\), which enables the transition to the next mode. 
+The heating transient from \(T_{\mathrm{high}}\) to \(T_{\mathrm{print}}\) during the return to the saved position is not simulated. When printing resumes, the nozzle state is set to its nominal printing conditions.
+
+The elliptical trajectory introduced in Section~1.4 was used for the simulation. Different
+replacement points are obtained depending on the amount of filament available. The results
+are shown in Figure~\ref{fig:matlab_filament_replacement}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{doubleEllipse.png}
+    \caption{MATLAB simulation of the filament replacement procedure during the printing of an elliptical trajectory. In each case, the print head stops when the available filament is exhausted, moves to the wipe tower located at the origin, and then returns to the saved printing position after the replacement procedure.}
+    \label{fig:matlab_filament_replacement}
+\end{figure}
+The results show that the print head returns to the correct saved position after each filament replacement. The interruption point changes with the amount of filament available, while the same replacement sequence is followed in each case.
 \end{document}
