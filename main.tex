@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\usepackage{longtable}
 
 \title{\textbf{Mini Project 2026}\\
 Modelling a 3D Printer}
@@ -22,7 +23,7 @@ Giorgio Ramundo
 \maketitle
 
 \tableofcontents
-\newpage
+
 
 \section{Physical Modelling}
 \subsection{Kinematics}
@@ -40,7 +41,7 @@ r_m\theta_l = x+y,
 r_m\theta_r = x-y.
 \end{equation}
 
-Solving for the Cartesian coordinates gives
+We then obtain the following equations
 \begin{equation}
 x = \frac{r_m}{2}\left(\theta_l+\theta_r\right),
 \end{equation}
@@ -48,7 +49,7 @@ x = \frac{r_m}{2}\left(\theta_l+\theta_r\right),
 y = \frac{r_m}{2}\left(\theta_l-\theta_r\right).
 \end{equation}
 
-Differentiating with respect to time yields the print-head velocities:
+Differentiating with respect to time, we find the print-head velocities:
 \begin{equation}
 \dot{x} = \frac{r_m}{2}
 \left(\dot{\theta}_l+\dot{\theta}_r\right),
@@ -57,6 +58,8 @@ Differentiating with respect to time yields the print-head velocities:
 \dot{y} = \frac{r_m}{2}
 \left(\dot{\theta}_l-\dot{\theta}_r\right).
 \end{equation}
+
+
 \subsection{Dynamics}
 \paragraph{Electrical dynamics.}
 Since the left and right motor circuits are identical, they can be
@@ -68,7 +71,7 @@ u_j = L_m\dot{i}_j + R_m i_j + u_{M,j},
 \end{equation}
 where $u_{M,j}$ denotes the voltage across the electromechanical
 transducer.\\
-Rearranging,
+The final relation is defined as follows:
 \begin{equation}
 \dot{i}_j=
 \frac{1}{L_m}
@@ -171,6 +174,7 @@ F_j=
 \frac{\tau_j-J_m\ddot{\theta}_j}{r_m},
 \qquad j\in\{l,r\}.
 \]
+
 \paragraph{Alternative Euler--Lagrange derivation.}
 The mechanical dynamics can alternatively be derived using the
 Euler--Lagrange equations with $x$ and $y$ as generalized coordinates.
@@ -249,7 +253,6 @@ m+\frac{2J_m}{r_m^2}
 \end{equation}
 
 These equations coincide with the mechanical model obtained above through the force-balance approach.
-
 \paragraph{Complete system dynamics.}
 By substituting the transducer relations into the motor equations,
 using the belt-force relation, and finally introducing the kinematic relations derived in Section 1.1,
@@ -297,6 +300,8 @@ c_x=\mu_{l,x}+4\mu_r,
 \qquad
 c_y=\mu_{l,y}+2\mu_r.
 \end{equation}
+
+
 \subsection{Decoupling of the $x$ and $y$ Dynamics}
 
 The coupled motor dynamics can be decoupled by exploiting the structure of
@@ -633,6 +638,9 @@ The results show that the same decoupled model and inverse-dynamics
 procedure can generate different smooth closed trajectories by modifying
 only the prescribed Cartesian path.
 
+The numerical values used in the simulations are reported in
+Appendix~\ref{app:parameters}.
+
 \subsection{Nozzle Model}
 The nozzle heating system is modelled by coupling the electrical circuit
 to a thermal model. The input of the system is the controllable
@@ -746,6 +754,7 @@ with governing differential equations
 +
 \frac{u_n}{L_n}.
 \]
+
 \subsection{Filament Cooling}
 
 The printed filament is modelled as a 1-D distributed thermal system with a square
@@ -976,6 +985,8 @@ have already started cooling, while the most recent sections are still close to 
 temperature. After approximately \(21.3\,\mathrm{s}\) from the beginning of the simulation,
 the temperature difference along the filament becomes smaller than the selected tolerance $(tol. = 5[K])$.
 Consequently, the filament has final nearly uniform temperature.
+The numerical values used in the simulations are reported in Appendix~\ref{app:parameters}.
+
 \section{Finite State Machines}
 
 \subsection{Filament Replacement}
@@ -1090,6 +1101,7 @@ The resulting automaton is shown in Figure~\ref{fig:parked_automaton}.
     \caption{Automaton for the detection of the correctly parked print head.}
     \label{fig:parked_automaton}
 \end{figure}
+
 \section{Hybrid System}
 
 \subsection{Filament Replacement}
@@ -1406,4 +1418,431 @@ are shown in Figure~\ref{fig:matlab_filament_replacement}.
     \label{fig:matlab_filament_replacement}
 \end{figure}
 The results show that the print head returns to the correct saved position after each filament replacement. The interruption point changes with the amount of filament available, while the same replacement sequence is followed in each case.
+The numerical values used in the simulations are reported in
+Appendix~\ref{app:parameters}.
+\subsection{Drawing a Square}
+
+The hybrid structure introduced in Section~3.1 is now extended to draw a square using only the
+angular measurements of the two DC motors. The Printing mode is divided into four modes, one for
+each side of the square, while the switching logic is based only on the motor angular measurements.
+
+For the simulation, a square with side length
+
+\[
+L_s = 0.20\,\mathrm{m}
+\]
+
+is considered. The trajectory is followed counterclockwise, starting with a horizontal motion
+in the positive \(x\)-direction. The four sides are therefore generated in the sequence
+
+\[
+H_+ \rightarrow V_+ \rightarrow H_- \rightarrow V_-.
+\]
+
+It is assumed that enough filament is available to complete the square, so no filament-replacement
+event is triggered during this simulation.
+
+\medskip
+\noindent\textbf{Angular motion conditions}
+
+From the CoreXY kinematic relations derived in Section~1.1, the motor angular displacements
+associated with Cartesian displacements are
+
+\[
+\Delta\theta_l=\frac{\Delta x+\Delta y}{r_m},
+\qquad
+\Delta\theta_r=\frac{\Delta x-\Delta y}{r_m}.
+\]
+
+Therefore, a horizontal or vertical displacement of one side length \(L_s\) corresponds to an
+angular displacement of magnitude
+
+\[
+\theta_s=\frac{L_s}{r_m}.
+\]
+
+For the selected square,
+
+\[
+\theta_s=\frac{0.20}{0.006}\approx 33.33\,\mathrm{rad}.
+\]
+
+The required motor-angle variations for the four sides are therefore
+
+\[
+\begin{array}{c|cc}
+\text{Motion} & \Delta\theta_l & \Delta\theta_r \\ \hline
+H_+ & +\theta_s & +\theta_s \\
+V_+ & +\theta_s & -\theta_s \\
+H_- & -\theta_s & -\theta_s \\
+V_- & -\theta_s & +\theta_s
+\end{array}
+\]
+
+where the angular displacements are measured from the motor angles at the beginning of each
+side.
+
+\medskip
+\noindent\textbf{Hybrid modes for square drawing}
+
+The Printing mode of the hybrid system is divided into four discrete modes, corresponding to
+the four sides of the square:
+
+\[
+Q_{\mathrm{sq}}=\{q_R, q_U, q_L, q_D, q_{stop}\},
+\]
+
+where \(q_R\), \(q_U\), \(q_L\), and \(q_D\) denote motion in the positive \(x\)-direction,
+positive \(y\)-direction, negative \(x\)-direction, and negative \(y\)-direction, respectively,
+while \(q_{stop}\) indicates that the square has been completed.
+
+At the beginning of each side, the current motor angles are stored as reference values
+\(\theta_{l,s}\) and \(\theta_{r,s}\). The relative angular displacements are then defined as
+
+\[
+\Delta\theta_l=\theta_l-\theta_{l,s},
+\qquad
+\Delta\theta_r=\theta_r-\theta_{r,s}.
+\]
+
+A transition to the next mode fires when the corresponding angular displacement condition
+for one side of the square is satisfied.
+
+\medskip
+\noindent\textbf{Invariants, guards and reset maps}
+
+The invariants of the four drawing modes are defined so that the system remains in
+each mode until the corresponding angular displacement reaches the required target. The
+\(q_{stop}\) mode has no restrictive invariant, since it is the final mode of the hybrid automaton
+and the system can remain in this mode for an arbitrary amount of time.
+The transitions occur when the motor-angle variations associated with one side of the square
+are reached.
+
+\begin{table}[H]
+\centering
+\begin{minipage}{0.39\textwidth}
+\centering
+\begin{tabular}{c|c}
+\textbf{Mode} & \textbf{Invariant} \\ \hline
+
+$q_R$ &
+$\Delta\theta_l \leq \theta_s,\;
+ \Delta\theta_r \leq \theta_s$ \\
+
+$q_U$ &
+$\Delta\theta_l \leq \theta_s,\;
+ \Delta\theta_r \geq -\theta_s$ \\
+
+$q_L$ &
+$\Delta\theta_l \geq -\theta_s,\;
+ \Delta\theta_r \geq -\theta_s$ \\
+
+$q_D$ &
+$\Delta\theta_l \geq -\theta_s,\;
+ \Delta\theta_r \leq \theta_s$ \\
+
+$q_{stop}$ &
+$\mathcal{X}$
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}{0.59\textwidth}
+\centering
+
+\begin{tabular}{c|c|c}
+\textbf{Transition} & \textbf{Guard} & \textbf{Reset map} \\ \hline
+
+$q_R \rightarrow q_U$ &
+$\Delta\theta_l=\theta_s,\;
+ \Delta\theta_r=\theta_s$ &
+$\theta_{l,s}^{+}=\theta_l^{-},\;
+ \theta_{r,s}^{+}=\theta_r^{-}$ \\
+
+$q_U \rightarrow q_L$ &
+$\Delta\theta_l=\theta_s,\;
+ \Delta\theta_r=-\theta_s$ &
+$\theta_{l,s}^{+}=\theta_l^{-},\;
+ \theta_{r,s}^{+}=\theta_r^{-}$ \\
+
+$q_L \rightarrow q_D$ &
+$\Delta\theta_l=-\theta_s,\;
+ \Delta\theta_r=-\theta_s$ &
+$\theta_{l,s}^{+}=\theta_l^{-},\;
+ \theta_{r,s}^{+}=\theta_r^{-}$ \\
+
+$q_D \rightarrow q_{stop}$ &
+$\Delta\theta_l=-\theta_s,\;
+ \Delta\theta_r=\theta_s$ &
+identity
+\end{tabular}
+\end{minipage}
+\end{table}
+
+For the printing variable \(p(q)\) defined in Section~3.1, we set \(p(q)=1\) in the four
+drawing modes \(q_R\), \(q_U\), \(q_L\), and \(q_D\), while \(p(q_{stop})=0\).
+The resulting hybrid automaton is shown in Figure~\ref{fig:square_hybrid}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hybrid Automata.png}
+    \caption{Hybrid automaton used for the square-drawing procedure.}
+    \label{fig:square_hybrid}
+\end{figure}
+
+\medskip
+\noindent\textbf{MATLAB Implementation and Simulation}
+
+The square-drawing logic was implemented in MATLAB by assigning the motor angular velocities
+according to the active discrete mode. The motor angles are integrated in time, while the
+transition to the next side is triggered only when the corresponding angular displacement
+condition is satisfied.
+
+The Cartesian coordinates are not used for the switching logic. They are reconstructed from
+the motor angles only for visualisation, using the CoreXY kinematic relations derived in
+Section~1.1. The resulting square trajectory is shown in Figure~\ref{fig:square_simulation}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{PerfectSquare.png}
+    \caption{MATLAB simulation of the square trajectory using motor angular measurements.}
+    \label{fig:square_simulation}
+\end{figure}
+
+The simulated trajectory forms the required \(0.20\,\mathrm{m}\) square and returns to the
+initial position after completing the fourth side. The switching between sides is determined
+only from the measured motor-angle variations, without using Cartesian position measurements.
+
+
+
+\appendix
+\section{Model Parameters}
+\label{app:parameters}
+
+The numerical values used throughout the simulations were selected by taking inspiration
+from representative values and typical operating ranges reported in the literature and
+technical sources listed in the References. The selected values are modelling choices and
+may differ from those reported in the original sources.
+
+\footnotesize
+\renewcommand{\arraystretch}{0.9}
+
+\begin{longtable}{lll}
+\caption{Model parameters used in the simulations.}
+\label{tab:parameters}\\
+
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\ \hline
+\endfirsthead
+
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\ \hline
+\endhead
+
+Air heat-transfer coefficient
+& \(h_{\mathrm{air}}\)
+& \(20\,\mathrm{W/(m^2\,K)}\) \\
+
+Environmental temperature
+& \(T_e\)
+& \(25\,^\circ\mathrm{C}\) \\
+
+Filament width
+& \(w\)
+& \(4\times10^{-4}\,\mathrm{m}\) \\
+
+High-temperature threshold
+& \(T_{\mathrm{high}}\)
+& \(205\,^\circ\mathrm{C}\) \\
+
+Linear friction coefficient, \(x\)-direction
+& \(\mu_{l,x}\)
+& \(0.04\,\mathrm{Ns/m}\) \\
+
+Linear friction coefficient, \(y\)-direction
+& \(\mu_{l,y}\)
+& \(0.04\,\mathrm{Ns/m}\) \\
+
+Low-temperature threshold
+& \(T_{\mathrm{low}}\)
+& \(65\,^\circ\mathrm{C}\) \\
+
+Motor constant
+& \(K_m\)
+& \(0.025\,\mathrm{Nm/A}\) \\
+
+Motor inductance
+& \(L_m\)
+& \(3\times10^{-4}\,\mathrm{H}\) \\
+
+Motor inertia
+& \(J_m\)
+& \(1.5\times10^{-6}\,\mathrm{kg\,m^2}\) \\
+
+Motor radius
+& \(r_m\)
+& \(6\times10^{-3}\,\mathrm{m}\) \\
+
+Motor resistance
+& \(R_m\)
+& \(2\,\Omega\) \\
+
+Nozzle capacitance
+& \(C_n\)
+& \(1\times10^{-2}\,\mathrm{F}\) \\
+
+Nozzle heater voltage
+& \(u_n\)
+& \(24\,\mathrm{V}\) \\
+
+Nozzle inductance
+& \(L_n\)
+& \(5\times10^{-2}\,\mathrm{H}\) \\
+
+Nozzle resistance
+& \(R_n\)
+& \(14.4\,\Omega\) \\
+
+Nozzle temperature
+& \(T_n\)
+& \(210\,^\circ\mathrm{C}\) \\
+
+Nozzle thermal capacity
+& \(C_{t,n}\)
+& \(4.0\,\mathrm{J/K}\) \\
+
+Nozzle thermal resistance
+& \(R_{t,n}\)
+& \(4.625\,\mathrm{K/W}\) \\
+
+PLA density
+& \(\rho\)
+& \(1300\,\mathrm{kg/m^3}\) \\
+
+Plate heat-transfer coefficient
+& \(h_{\mathrm{plate}}\)
+& \(100\,\mathrm{W/(m^2\,K)}\) \\
+
+Positioning speed
+& \(v_{\mathrm{pos}}\)
+& \(0.10\,\mathrm{m/s}\) \\
+
+Print-bed side
+& \(L_{\mathrm{bed}}\)
+& \(0.40\,\mathrm{m}\) \\
+
+Print-bed temperature
+& \(T_b\)
+& \(60\,^\circ\mathrm{C}\) \\
+
+Printing speed
+& \(v_{\mathrm{print}}\)
+& \(0.01\,\mathrm{m/s}\) \\
+
+Rolling friction coefficient
+& \(\mu_r\)
+& \(5.5\times10^{-3}\,\mathrm{Ns/m}\) \\
+
+Settling time
+& \(T_{\mathrm{wait}}\)
+& \(1\,\mathrm{s}\) \\
+
+Spatial step
+& \(\Delta x\)
+& \(10^{-4}\,\mathrm{m}\) \\
+
+Specific heat capacity
+& \(c_p\)
+& \(1800\,\mathrm{J/(kg\,K)}\) \\
+
+Temperature tolerance
+& \(\varepsilon\)
+& \(5\,\mathrm{K}\) \\
+
+Thermal conductivity
+& \(k_{\mathrm{filament}}\)
+& \(0.13\,\mathrm{W/(m\,K)}\) \\
+
+Time step
+& \(\Delta t\)
+& \(0.01\,\mathrm{s}\) \\
+
+Tool-head mass
+& \(m\)
+& \(0.15\,\mathrm{kg}\) \\
+
+Total filament length
+& \(L_{\mathrm{tot}}\)
+& \(0.05\,\mathrm{m}\) \\
+
+\hline
+\end{longtable}
+\small
+\begin{thebibliography}{99}
+
+\bibitem{corexy_mass}
+J. Wagner,
+\textit{smallXY CoreXY 3D Printer},
+GitHub repository.
+Available online.
+
+\bibitem{maxon_motor}
+Maxon Group,
+\textit{DC-max 26 Motor Datasheet}.
+Available online.
+
+\bibitem{gt2_pulley}
+GT2 Pulley Technical Reference,
+\textit{20-Tooth GT2 Pulley Dimensions}.
+Available online.
+
+\bibitem{misumi_friction}
+MISUMI,
+\textit{Miniature Linear Guide Technical Data}.
+Available online.
+
+\bibitem{ntn_friction}
+NTN-SNR,
+\textit{Linear Guides Technical Catalogue}.
+Available online.
+
+\bibitem{marlin_feedrate}
+Marlin Firmware,
+\textit{M203 -- Set Maximum Feedrate}.
+Available online.
+
+\bibitem{rose_curve}
+E. W. Weisstein,
+\textit{Rose Curve},
+Wolfram MathWorld.
+Available online.
+
+\bibitem{pla_properties}
+Divide By Zero Technologies,
+\textit{Poly Lactic Acid (PLA) Filament for 3D Printing},
+Knowledge Center.
+Available online.
+
+\bibitem{cooling_rate}
+A. S. Alzahrani, M. Khan, and F. He,
+\textit{Fundamentals of Cooling Rate and Its Thermodynamic Interactions in Material Extrusion},
+Journal of Manufacturing and Materials Processing,
+vol. 9, no. 12, 412, 2025.
+
+\bibitem{thermal_am}
+N. Foster,
+\textit{Thermal Simulation of Additive Manufacturing from G-Code},
+Honors Capstone,
+Louisiana State University, 2022.
+
+\bibitem{e3d_hotend}
+E3D,
+\textit{E3D Classics Support: V6 HotEnd},
+Technical support documentation.
+Available online.
+
+
+\end{thebibliography}
+
+\section*{AI Acknowledgment}
+
+We acknowledge the use of OpenAI's ChatGPT (https://chatgpt.com) to support the development
+of this assessment by refining language, assisting with programming and debugging, acting as
+a brainstorming partner, providing feedback, and assisting with LaTeX syntax and formatting.
 \end{document}
